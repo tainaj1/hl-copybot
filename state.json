@@ -26,10 +26,16 @@
       "month_roi": 14803.9999843636
     }
   ],
-  "snapshots": {},
+  "snapshots": {
+    "0x2ee6bef5b7b63aeefc9059f1436dabe259c34d1c": {},
+    "0x9cd0a696c7cbb9d44de99268194cb08e5684e5fe": {},
+    "0x4d21e561c54302a4e6646fa9051aae68960d10fe": {},
+    "0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a": {},
+    "0x03ad92c36f19f093194983221962ccc3bee3cfa3": {}
+  },
   "cash": 10000.0,
   "positions": {},
   "trades": [],
   "realized_pnl": 0.0,
-  "updated": "2026-10-17T19:56:37+00:00"
+  "updated": "2026-10-17T19:57:44+00:00"
 }
