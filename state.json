@@ -31,11 +31,16 @@
     "0x9cd0a696c7cbb9d44de99268194cb08e5684e5fe": {},
     "0x4d21e561c54302a4e6646fa9051aae68960d10fe": {},
     "0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a": {},
-    "0x03ad92c36f19f093194983221962ccc3bee3cfa3": {}
+    "0x03ad92c36f19f093194983221962ccc3bee3cfa3": {},
+    "0xab9ff3b61c1fbc40d1ac6610b3b1093805165fb9": {},
+    "0x8ffcba256267133d44651c7d52b0bea321f04dc7": {},
+    "0x5ac021da17bb5bbab50691d25645b98a3883a3af": {},
+    "0xad1fb851e54c55d65d8cefe65f9e4c64a83650fd": {},
+    "0xc7ccec521eed20fcddff8f95424816ac421c7d87": {}
   },
   "cash": 10000.0,
   "positions": {},
   "trades": [],
   "realized_pnl": 0.0,
-  "updated": "2026-10-17T20:48:12+00:00"
+  "updated": "2026-10-17T20:49:34+00:00"
 }
