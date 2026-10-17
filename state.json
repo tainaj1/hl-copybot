@@ -1,0 +1,35 @@
+{
+  "traders": [
+    {
+      "address": "0x2ee6bef5b7b63aeefc9059f1436dabe259c34d1c",
+      "account_value": 56030098.296,
+      "month_roi": 0.1476194287
+    },
+    {
+      "address": "0x9cd0a696c7cbb9d44de99268194cb08e5684e5fe",
+      "account_value": 1729284.285412,
+      "month_roi": 0.0462438209
+    },
+    {
+      "address": "0x4d21e561c54302a4e6646fa9051aae68960d10fe",
+      "account_value": 3717727.084351,
+      "month_roi": 37239.49824351
+    },
+    {
+      "address": "0x83ffcfb1f2ad843c474b2e28df86c721cb869d3a",
+      "account_value": 255069.945746,
+      "month_roi": 23240.68945746
+    },
+    {
+      "address": "0x03ad92c36f19f093194983221962ccc3bee3cfa3",
+      "account_value": 645276409.848485,
+      "month_roi": 14803.9999843636
+    }
+  ],
+  "snapshots": {},
+  "cash": 10000.0,
+  "positions": {},
+  "trades": [],
+  "realized_pnl": 0.0,
+  "updated": "2026-10-17T19:56:37+00:00"
+}
