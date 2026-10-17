@@ -10,6 +10,8 @@ START_CASH = 10_000.0
 TOP_N = 5
 POSITION_FRACTION = 0.10   # each copied position = 10% of current equity (1x, no leverage)
 MIN_ACCOUNT = 100_000      # ignore small accounts
+MAX_ACCOUNT = 20_000_000   # whales/vaults are not realistically copyable
+MAX_MONTH_ROI = 3.0        # >300%/month is almost always a data glitch
 MAX_VLM_RATIO = 50         # monthly volume / account value; above this = likely market maker/HFT
 
 
@@ -49,11 +51,13 @@ def refresh():
     scored = []
     for r in rows:
         av = float(r["accountValue"])
-        if av < MIN_ACCOUNT:
+        if av < MIN_ACCOUNT or av > MAX_ACCOUNT:
             continue
         d, w, m, a = (perf(r, k) for k in ("day", "week", "month", "allTime"))
         if not (a["pnl"] > 0 and m["pnl"] > 0 and w["pnl"] >= 0):
             continue                      # must be profitable across timeframes
+        if m["roi"] <= 0 or m["roi"] > MAX_MONTH_ROI or a["roi"] > 50:
+            continue
         if m["vlm"] / av > MAX_VLM_RATIO:
             continue                      # skip HFT / market makers (can't copy at 5-min lag)
         scored.append((m["roi"] + a["roi"] * 0.25, r["ethAddress"], av, m["roi"]))
@@ -75,7 +79,6 @@ def positions_of(addr):
         if szi != 0:
             out[p["coin"]] = szi
     return out
-
 
 def equity(s, mids):
     eq = s["cash"]
@@ -116,6 +119,7 @@ def poll():
             cur = positions_of(addr)
         except Exception as e:
             print("skip", addr, e); continue
+        print(addr[:10], "open positions:", len(cur))
         prev = s["snapshots"].get(addr)
         s["snapshots"][addr] = cur
         if prev is None:
@@ -157,6 +161,8 @@ def report():
     if hook:
         requests.post(hook, json={"text": text}, timeout=20)
 
-
 if __name__ == "__main__":
     {"refresh": refresh, "poll": poll, "report": report}[sys.argv[1]]()
+
+
+
