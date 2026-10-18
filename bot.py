@@ -80,6 +80,7 @@ def positions_of(addr):
             out[p["coin"]] = szi
     return out
 
+
 def equity(s, mids):
     eq = s["cash"]
     for pos in s["positions"].values():
@@ -137,8 +138,16 @@ def poll():
             if (new and not old) or flipped:
                 open_pos(s, key, coin, new, px, addr, mids)
     s["trades"] = s["trades"][-500:]
+    if not s.get("history"):
+        record_equity(s, equity(s, mids))
     save(s)
     print("Equity:", round(equity(s, mids), 2), "open:", len(s["positions"]))
+
+
+def record_equity(s, eq):
+    h = s.setdefault("history", [])
+    h.append({"t": now(), "equity": round(eq, 2)})
+    s["history"] = h[-3000:]   # ~2 months at one point per 30 min
 
 
 # ---------- Job C: report ----------
@@ -146,6 +155,8 @@ def report():
     s = load()
     mids = post({"type": "allMids"})
     eq = equity(s, mids)
+    record_equity(s, eq)
+    save(s)
     cutoff = time.time() - 86400
     recent = [t for t in s["trades"] if datetime.fromisoformat(t["t"]).timestamp() > cutoff]
     lines = [f"*Copy-trade paper portfolio*",
@@ -161,8 +172,6 @@ def report():
     if hook:
         requests.post(hook, json={"text": text}, timeout=20)
 
+
 if __name__ == "__main__":
     {"refresh": refresh, "poll": poll, "report": report}[sys.argv[1]]()
-
-
-
