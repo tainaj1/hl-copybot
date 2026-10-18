@@ -37,6 +37,17 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 button,input[type=file]{font:inherit;margin-top:8px}
 button{background:var(--accent);color:var(--bg);border:0;border-radius:4px;padding:7px 14px;cursor:pointer}
 :focus-visible{outline:2px solid var(--gain);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--panel)}
+.seg button{margin:0;background:transparent;color:var(--mute);border-radius:0;padding:6px 12px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
+.sech{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:30px 0 8px}
+.sech h2{margin:0}
+.chart{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px}
+.chart svg{display:block;width:100%;height:auto;touch-action:pan-y}
+.ln{fill:none;stroke-width:2.5;stroke-linejoin:round}.ln.gain{stroke:var(--gain)}.ln.loss{stroke:var(--loss)}
+.ax{fill:var(--mute);font-size:11px}.base{stroke:var(--line);stroke-dasharray:4 4}
+.read{font-size:.88rem;color:var(--mute);min-height:1.3em;padding:2px 4px}
+details summary{cursor:pointer;margin:14px 0 8px;font-weight:600}
 .note{font-size:.82rem;color:var(--mute);margin-top:28px}
 @media(max-width:640px){.hero{grid-template-columns:1fr}}
 </style>
@@ -54,6 +65,9 @@ button{background:var(--accent);color:var(--bg);border:0;border-radius:4px;paddi
   </div>
 </section>
 
+<div class="sech"><h2>Portfolio value</h2><div class="seg" id="rng"><button data-v="1D">Day</button><button data-v="1W">Week</button><button data-v="1M" aria-pressed="true">Month</button><button data-v="All">All</button></div></div>
+<div class="chart"><div id="chartBox"></div><div class="read" id="read"></div></div>
+
 <div class="load" id="load" hidden>
   <strong>Load your data</strong>
   <p class="stamp" style="margin:4px 0 8px">This page can’t reach your bot’s file from here. Choose <code>state.json</code> from your repo, or paste its contents.</p>
@@ -65,8 +79,9 @@ button{background:var(--accent);color:var(--bg);border:0;border-radius:4px;paddi
 
 <h2>Open positions</h2>
 <div class="wrap" id="posWrap"></div>
-<h2>Recent trades</h2>
-<div class="wrap" id="tradeWrap"></div>
+<div class="sech"><h2>Trade history</h2><div class="seg" id="per"><button data-v="day" aria-pressed="true">Daily</button><button data-v="week">Weekly</button><button data-v="month">Monthly</button></div></div>
+<div class="wrap" id="sumWrap"></div>
+<details><summary>Every trade (latest 100)</summary><div class="wrap" id="tradeWrap"></div></details>
 <h2>Traders being copied</h2>
 <div class="wrap" id="trWrap"></div>
 <p class="note">Paper money only. Prices come from Hyperliquid when this page can reach it; otherwise open profit uses entry prices. Past results don’t predict future ones.</p>
@@ -79,7 +94,57 @@ const sgn=v=>(v>=0?"+":"-")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFra
 const cls=v=>v>=0?"gain":"loss";
 const short=a=>a.slice(0,6)+"…"+a.slice(-4);
 const START=10000;
-let timer;
+let timer,CUR=null,RANGE="1M",PMODE="day";
+const dt=(ms,long)=>new Date(ms).toLocaleString(undefined,long?{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}:{month:"short",day:"numeric"});
+function seg(id,v){document.querySelectorAll("#"+id+" button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v)))}
+
+function drawChart(){
+  if(!CUR)return;
+  const span={"1D":864e5,"1W":6048e5,"1M":2592e6,"All":Infinity}[RANGE],now=Date.now();
+  let h=(CUR.s.history||[]).map(p=>({t:new Date(p.t).getTime(),v:p.equity})).filter(p=>p.t>=now-span);
+  h.push({t:now,v:CUR.eq});
+  const box=$("chartBox");$("read").textContent="";
+  if(h.length<3){box.innerHTML='<div class="empty">The chart fills in as the bot records your balance every 30 minutes. Check back after a few reports'+(RANGE==="All"?".":", or try a longer range.")+'</div>';return}
+  const W=700,H=240,L=62,R=12,T=14,B=26;
+  let lo=Math.min(...h.map(p=>p.v)),hi=Math.max(...h.map(p=>p.v));
+  if(START>=lo-(hi-lo)&&START<=hi+(hi-lo)){lo=Math.min(lo,START);hi=Math.max(hi,START)}
+  const pad=(hi-lo)*.08||1;lo-=pad;hi+=pad;
+  const t0=h[0].t,t1=h[h.length-1].t;
+  const X=t=>L+(t-t0)/(t1-t0||1)*(W-L-R),Y=v=>T+(hi-v)/(hi-lo)*(H-T-B);
+  const path=h.map((p,i)=>(i?"L":"M")+X(p.t).toFixed(1)+" "+Y(p.v).toFixed(1)).join("");
+  const up=h[h.length-1].v>=h[0].v;
+  box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Portfolio value over time">'+
+    (START>lo&&START<hi?'<line class="base" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(START)+'" y2="'+Y(START)+'"/>':'')+
+    '<text class="ax" x="'+(L-6)+'" y="'+(T+8)+'" text-anchor="end">'+usd(hi).replace(/\.\d+/,"")+'</text>'+
+    '<text class="ax" x="'+(L-6)+'" y="'+(H-B)+'" text-anchor="end">'+usd(lo).replace(/\.\d+/,"")+'</text>'+
+    '<text class="ax" x="'+L+'" y="'+(H-6)+'">'+dt(t0)+'</text><text class="ax" x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end">'+dt(t1)+'</text>'+
+    '<path class="ln '+(up?"gain":"loss")+'" d="'+path+'"/><circle id="dot" r="4" cx="-9" cy="-9" style="fill:var(--ink)"/>'+
+    '<rect x="'+L+'" y="0" width="'+(W-L-R)+'" height="'+H+'" fill="transparent" id="hit"/></svg>';
+  const svg=box.firstChild,dot=$("dot");
+  const move=e=>{const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W;
+    let b=h[0];for(const p of h)if(Math.abs(X(p.t)-x)<Math.abs(X(b.t)-x))b=p;
+    dot.setAttribute("cx",X(b.t));dot.setAttribute("cy",Y(b.v));$("read").textContent=dt(b.t,1)+"  ·  "+usd(b.v)+"  ("+((b.v/START-1)*100).toFixed(2)+"% vs start)"};
+  $("hit").addEventListener("pointermove",move);$("hit").addEventListener("pointerdown",move);
+  $("read").textContent="Latest: "+usd(CUR.eq)+" · hover or tap the line to see a point";
+}
+
+function drawTrades(){
+  if(!CUR)return;
+  const T=CUR.s.trades||[];
+  const start=ms=>{const d=new Date(ms),x=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+    if(PMODE==="week")x.setDate(x.getDate()-((x.getDay()+6)%7));if(PMODE==="month")x.setDate(1);return x.getTime()};
+  const label=k=>PMODE==="month"?new Date(k).toLocaleDateString(undefined,{month:"long",year:"numeric"}):
+    (PMODE==="week"?"Week of ":"")+new Date(k).toLocaleDateString(undefined,{weekday:PMODE==="day"?"short":undefined,month:"short",day:"numeric"});
+  const g=new Map();
+  T.forEach(t=>{const k=start(new Date(t.t).getTime());const o=g.get(k)||{k,n:0,op:0,cl:0,w:0,l:0,p:0};
+    o.n++;if(t.pnl!==undefined){o.cl++;o.p+=t.pnl;t.pnl>=0?o.w++:o.l++}else o.op++;g.set(k,o)});
+  const rows=[...g.values()].sort((a,b)=>b.k-a.k).map(o=>[esc(label(o.k)),o.n,o.op,o.cl,o.w+" / "+o.l,o.cl?'<span class="'+cls(o.p)+'">'+sgn(o.p)+'</span>':"–"]);
+  table($("sumWrap"),["Period","#Trades","#Opened","#Closed","#Wins / losses","#Closed profit"],rows,"No trades yet. The bot copies a trader only when they open or close a position after it starts watching.");
+  const tr=T.slice(-100).reverse().map(t=>[esc(new Date(t.t).toLocaleString()),esc(t.action),esc(t.coin),"$"+Number(t.px).toLocaleString(),
+    t.pnl!==undefined?'<span class="'+cls(t.pnl)+'">'+sgn(t.pnl)+'</span>':(t.notional?usd(t.notional):"–"),esc(short(t.trader))]);
+  table($("tradeWrap"),["When","Action","Coin","#Price","#Size / profit","Trader"],tr,"No trades yet.");
+}
+
 
 function table(el,head,rows,emptyMsg){
   if(!rows.length){el.innerHTML='<div class="empty">'+emptyMsg+'</div>';return}
@@ -113,10 +178,7 @@ async function render(s){
   $("npos").textContent=posRows.length;
   $("stamp").textContent=s.updated?"Bot last saved "+new Date(s.updated).toLocaleString():"";
   table($("posWrap"),["Coin","Side","#Size","#Entry","#Now","#Open profit","Trader"],posRows,"No open positions yet. The bot opens one when a followed trader opens a new position.");
-  const tr=(s.trades||[]).slice(-20).reverse().map(t=>[
-    esc(new Date(t.t).toLocaleString()),esc(t.action),esc(t.coin),"$"+Number(t.px).toLocaleString(),
-    t.pnl!==undefined?'<span class="'+cls(t.pnl)+'">'+sgn(t.pnl)+'</span>':(t.notional?usd(t.notional):"–"),esc(short(t.trader))]);
-  table($("tradeWrap"),["When","Action","Coin","#Price","#Size / profit","Trader"],tr,"No trades yet.");
+  CUR={s,eq};drawChart();drawTrades();
   table($("trWrap"),["Trader","#Account value","#Monthly return"],(s.traders||[]).map(t=>[esc(short(t.address)),usd(t.account_value),(t.month_roi*100).toFixed(1)+"%"]),"No traders selected. Run the refresh workflow.");
 }
 
@@ -140,6 +202,8 @@ async function auto(){
     table($("trWrap"),["Trader"],[],"Load your data above.");
   }
 }
+$("rng").onclick=e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){RANGE=v;seg("rng",v);drawChart()}};
+$("per").onclick=e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){PMODE=v;seg("per",v);drawTrades()}};
 $("go").onclick=()=>fromText($("paste").value);
 $("file").onchange=e=>{const f=e.target.files[0];if(f)f.text().then(fromText)};
 auto();
