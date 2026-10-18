@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Copy-trade paper portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f4;--panel:#fff;--ink:#14213d;--mute:#5b6b82;--line:#d6dde6;--gain:#0f766e;--loss:#b4443c;--accent:#14213d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1624;--panel:#17213a;--ink:#e8edf6;--mute:#93a3bd;--line:#2a3652;--gain:#4fd1b5;--loss:#f08a80;--accent:#e8edf6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1624;--panel:#17213a;--ink:#e8edf6;--mute:#93a3bd;--line:#2a3652;--gain:#4fd1b5;--loss:#f08a80;--accent:#e8edf6;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+main{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{font-size:1rem;font-weight:600;margin:0;color:var(--mute)}
+.stamp{font-size:.85rem;color:var(--mute)}
+.hero{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin:14px 0 28px;align-items:end}
+.big{font-size:clamp(2.6rem,9vw,4.6rem);font-weight:800;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.ret{font-size:1.15rem;font-weight:600;margin-top:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;border-left:3px solid var(--accent);padding-left:16px}
+.stats b{display:block;font-size:1.2rem;font-variant-numeric:tabular-nums}
+.stats span{font-size:.82rem;color:var(--mute)}
+h2{font-size:1.05rem;margin:30px 0 8px}
+.wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--mute);font-size:.82rem}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.gain{color:var(--gain)}.loss{color:var(--loss)}
+.empty{padding:16px;color:var(--mute)}
+.load{background:var(--panel);border:1px dashed var(--line);border-radius:6px;padding:16px;margin:16px 0}
+.load textarea{width:100%;min-height:90px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:8px;font:inherit;font-size:.85rem}
+button,input[type=file]{font:inherit;margin-top:8px}
+button{background:var(--accent);color:var(--bg);border:0;border-radius:4px;padding:7px 14px;cursor:pointer}
+:focus-visible{outline:2px solid var(--gain);outline-offset:2px}
+.note{font-size:.82rem;color:var(--mute);margin-top:28px}
+@media(max-width:640px){.hero{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><h1>Copy-trade paper portfolio</h1><div class="stamp" id="stamp">Loading…</div></div>
+<section class="hero" aria-live="polite">
+  <div><div class="big" id="equity">–</div><div class="ret" id="ret"></div></div>
+  <div class="stats">
+    <div><b id="real">–</b><span>Realized profit</span></div>
+    <div><b id="unreal">–</b><span>Open profit</span></div>
+    <div><b id="cash">–</b><span>Cash</span></div>
+    <div><b id="npos">–</b><span>Open positions</span></div>
+  </div>
+</section>
+
+<div class="load" id="load" hidden>
+  <strong>Load your data</strong>
+  <p class="stamp" style="margin:4px 0 8px">This page can’t reach your bot’s file from here. Choose <code>state.json</code> from your repo, or paste its contents.</p>
+  <input type="file" id="file" accept=".json,application/json">
+  <textarea id="paste" placeholder="Paste state.json contents here"></textarea>
+  <button id="go">Show portfolio</button>
+  <div class="stamp loss" id="err"></div>
+</div>
+
+<h2>Open positions</h2>
+<div class="wrap" id="posWrap"></div>
+<h2>Recent trades</h2>
+<div class="wrap" id="tradeWrap"></div>
+<h2>Traders being copied</h2>
+<div class="wrap" id="trWrap"></div>
+<p class="note">Paper money only. Prices come from Hyperliquid when this page can reach it; otherwise open profit uses entry prices. Past results don’t predict future ones.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const usd=v=>(v<0?"-":"")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const sgn=v=>(v>=0?"+":"-")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const cls=v=>v>=0?"gain":"loss";
+const short=a=>a.slice(0,6)+"…"+a.slice(-4);
+const START=10000;
+let timer;
+
+function table(el,head,rows,emptyMsg){
+  if(!rows.length){el.innerHTML='<div class="empty">'+emptyMsg+'</div>';return}
+  el.innerHTML='<table><thead><tr>'+head.map((h,i)=>'<th'+(h[0]==="#"?' class="n"':'')+'>'+esc(h.replace(/^#/,""))+'</th>').join("")+'</tr></thead><tbody>'+
+    rows.map(r=>'<tr>'+r.map((c,i)=>'<td'+(head[i][0]==="#"?' class="n"':'')+'>'+c+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
+}
+
+async function getMids(){
+  try{
+    const r=await fetch("https://api.hyperliquid.xyz/info",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"allMids"})});
+    return await r.json();
+  }catch(e){return {}}
+}
+
+async function render(s){
+  const mids=await getMids();
+  let unreal=0,locked=0;
+  const posRows=Object.values(s.positions||{}).map(p=>{
+    const px=parseFloat(mids[p.coin])||p.entry_px;
+    const u=p.qty*(px-p.entry_px);unreal+=u;locked+=p.notional;
+    return [esc(p.coin),p.qty>0?"Long":"Short",usd(p.notional),"$"+p.entry_px.toLocaleString(),"$"+px.toLocaleString(),'<span class="'+cls(u)+'">'+sgn(u)+'</span>',esc(short(p.trader))];
+  });
+  const eq=s.cash+locked+unreal;
+  const ret=(eq/START-1)*100;
+  $("equity").textContent=usd(eq);
+  $("ret").className="ret "+cls(ret);
+  $("ret").textContent=(ret>=0?"+":"")+ret.toFixed(2)+"% since start";
+  $("real").textContent=sgn(s.realized_pnl||0);$("real").className=cls(s.realized_pnl||0);
+  $("unreal").textContent=sgn(unreal);$("unreal").className=cls(unreal);
+  $("cash").textContent=usd(s.cash);
+  $("npos").textContent=posRows.length;
+  $("stamp").textContent=s.updated?"Bot last saved "+new Date(s.updated).toLocaleString():"";
+  table($("posWrap"),["Coin","Side","#Size","#Entry","#Now","#Open profit","Trader"],posRows,"No open positions yet. The bot opens one when a followed trader opens a new position.");
+  const tr=(s.trades||[]).slice(-20).reverse().map(t=>[
+    esc(new Date(t.t).toLocaleString()),esc(t.action),esc(t.coin),"$"+Number(t.px).toLocaleString(),
+    t.pnl!==undefined?'<span class="'+cls(t.pnl)+'">'+sgn(t.pnl)+'</span>':(t.notional?usd(t.notional):"–"),esc(short(t.trader))]);
+  table($("tradeWrap"),["When","Action","Coin","#Price","#Size / profit","Trader"],tr,"No trades yet.");
+  table($("trWrap"),["Trader","#Account value","#Monthly return"],(s.traders||[]).map(t=>[esc(short(t.address)),usd(t.account_value),(t.month_roi*100).toFixed(1)+"%"]),"No traders selected. Run the refresh workflow.");
+}
+
+function fromText(txt){
+  try{const s=JSON.parse(txt);if(typeof s.cash!=="number")throw 0;$("err").textContent="";render(s)}
+  catch(e){$("err").textContent="That doesn’t look like a state.json file. Copy the whole file, starting with { and ending with }."}
+}
+
+async function auto(){
+  try{
+    const r=await fetch("state.json?t="+Date.now());
+    if(!r.ok)throw 0;
+    const s=await r.json();
+    $("load").hidden=true;render(s);
+    clearTimeout(timer);timer=setTimeout(auto,120000);
+  }catch(e){
+    $("load").hidden=false;
+    $("stamp").textContent="Waiting for data";
+    table($("posWrap"),["Coin"],[],"Load your data above.");
+    table($("tradeWrap"),["When"],[],"Load your data above.");
+    table($("trWrap"),["Trader"],[],"Load your data above.");
+  }
+}
+$("go").onclick=()=>fromText($("paste").value);
+$("file").onchange=e=>{const f=e.target.files[0];if(f)f.text().then(fromText)};
+auto();
+</script>
+</body>
+</html>
