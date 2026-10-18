@@ -42,18 +42,37 @@
       "HYPE": -3382.65,
       "TRUMP": 10.0
     },
-    "0x37331441dd5aba9f15110d764218d4d4dc0c649a": {},
+    "0x37331441dd5aba9f15110d764218d4d4dc0c649a": {
+      "HYPE": 100.0
+    },
     "0xa2ecada0b45ad16625865843c9fc5e7c985a2e42": {},
     "0xf3115b8641808c85544c36cac4024b7de58ef575": {},
     "0x7db93738b0a4606e5a1e5c394c644cb528d577e7": {
       "NEAR": 10309.2
     }
   },
-  "cash": 10000.0,
-  "positions": {},
-  "trades": [],
+  "cash": 9000.0,
+  "positions": {
+    "0x37331441dd5aba9f15110d764218d4d4dc0c649a:HYPE": {
+      "coin": "HYPE",
+      "qty": 12.968822949629091,
+      "entry_px": 77.108,
+      "notional": 1000.0,
+      "trader": "0x37331441dd5aba9f15110d764218d4d4dc0c649a"
+    }
+  },
+  "trades": [
+    {
+      "t": "2026-10-18T18:15:17+00:00",
+      "action": "BUY",
+      "coin": "HYPE",
+      "px": 77.108,
+      "notional": 1000.0,
+      "trader": "0x37331441dd5aba9f15110d764218d4d4dc0c649a"
+    }
+  ],
   "realized_pnl": 0.0,
-  "updated": "2026-10-18T18:10:18+00:00",
+  "updated": "2026-10-18T18:15:18+00:00",
   "history": [
     {
       "t": "2026-10-18T17:04:23+00:00",
