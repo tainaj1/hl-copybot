@@ -56,13 +56,11 @@
     },
     "0xd1720e80f9820a1e980e5f5f1b644cde257b6bf0": {},
     "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b": {
-      "HYPE": 247.91
+      "HYPE": 250.89
     },
-    "0xfe106cc52747165a65a51d1697132aff03bd9e08": {
-      "HYPE": 900.0
-    }
+    "0xfe106cc52747165a65a51d1697132aff03bd9e08": {}
   },
-  "cash": 6986.650187776848,
+  "cash": 7991.127732686773,
   "positions": {
     "0x37331441dd5aba9f15110d764218d4d4dc0c649a:HYPE": {
       "coin": "HYPE",
@@ -77,13 +75,6 @@
       "entry_px": 602.725,
       "notional": 999.9061332691074,
       "trader": "0x37331441dd5aba9f15110d764218d4d4dc0c649a"
-    },
-    "0xfe106cc52747165a65a51d1697132aff03bd9e08:HYPE": {
-      "coin": "HYPE",
-      "qty": 12.417897810098033,
-      "entry_px": 80.8185,
-      "notional": 1003.5958741654078,
-      "trader": "0xfe106cc52747165a65a51d1697132aff03bd9e08"
     }
   },
   "trades": [
@@ -127,10 +118,19 @@
       "px": 80.8185,
       "notional": 1003.6,
       "trader": "0xfe106cc52747165a65a51d1697132aff03bd9e08"
+    },
+    {
+      "t": "2026-10-28T19:20:20+00:00",
+      "action": "SELL",
+      "coin": "HYPE",
+      "px": 80.8895,
+      "pnl": 0.88,
+      "trader": "0xfe106cc52747165a65a51d1697132aff03bd9e08",
+      "why": "trader closed"
     }
   ],
-  "realized_pnl": -9.847804788637678,
-  "updated": "2026-10-28T19:15:24+00:00",
+  "realized_pnl": -8.966134044120743,
+  "updated": "2026-10-28T19:20:20+00:00",
   "history": [
     {
       "t": "2026-10-18T17:04:23+00:00",
