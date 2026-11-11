@@ -2,28 +2,28 @@
   "traders": [
     {
       "address": "0xec48794d7ad819a633471858f1ceafee1d7d1121",
-      "account_value": 662393.457164,
-      "month_roi": 0.9019358783
+      "account_value": 664939.649667,
+      "month_roi": 0.8402795059
     },
     {
       "address": "0x7b1113048c8ba09050a70720d2aafe2ef581f7d8",
-      "account_value": 161445.467571,
-      "month_roi": 0.5465597292
+      "account_value": 162254.692444,
+      "month_roi": 0.5186072732
+    },
+    {
+      "address": "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b",
+      "account_value": 1889931.159035,
+      "month_roi": 0.4752057111
     },
     {
       "address": "0x7b72d9d0d0b09130f260a5e1e0b06585ff4f0273",
-      "account_value": 315420.338558,
-      "month_roi": 0.348410641
+      "account_value": 320117.011122,
+      "month_roi": 0.3155274644
     },
     {
       "address": "0x92d3acdf0484a6a8baf6fe3676b23af7cdbdbc98",
-      "account_value": 235892.191601,
+      "account_value": 240614.912567,
       "month_roi": 0.0034284598
-    },
-    {
-      "address": "0xea86184328ff06c14a9b235117dba0482f27c93b",
-      "account_value": 189725.333738,
-      "month_roi": 0.3167794694
     }
   ],
   "snapshots": {
@@ -285,7 +285,7 @@
     }
   ],
   "realized_pnl": -24.68938400261556,
-  "updated": "2026-11-11T17:00:29+00:00",
+  "updated": "2026-11-11T17:03:55+00:00",
   "history": [
     {
       "t": "2026-10-18T17:04:23+00:00",
