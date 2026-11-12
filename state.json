@@ -56,7 +56,9 @@
     "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b": {
       "HYPE": 4398.72
     },
-    "0xfe106cc52747165a65a51d1697132aff03bd9e08": {},
+    "0xfe106cc52747165a65a51d1697132aff03bd9e08": {
+      "HYPE": 90.54
+    },
     "0x515755b2c5a209976cf0de869c30f45ac7495a60": {},
     "0xe0ab2797776304bc4eda9b8b71b27b802fc427da": {
       "ETH": 0.0369
@@ -79,9 +81,10 @@
     "0x7b1113048c8ba09050a70720d2aafe2ef581f7d8": {},
     "0xea86184328ff06c14a9b235117dba0482f27c93b": {
       "HYPE": -500.0
-    }
+    },
+    "0x0f6de061b4e35495d30aad19adb67eb8d380a743": {}
   },
-  "cash": 6991.720317695251,
+  "cash": 6016.32462409858,
   "positions": {
     "0x37331441dd5aba9f15110d764218d4d4dc0c649a:HYPE": {
       "coin": "HYPE",
@@ -103,6 +106,13 @@
       "entry_px": 73.196,
       "notional": 983.6841650330267,
       "trader": "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b"
+    },
+    "0xfe106cc52747165a65a51d1697132aff03bd9e08:HYPE": {
+      "coin": "HYPE",
+      "qty": 13.773370898389109,
+      "entry_px": 70.8175,
+      "notional": 975.3956935966706,
+      "trader": "0xfe106cc52747165a65a51d1697132aff03bd9e08"
     }
   },
   "trades": [
@@ -282,10 +292,18 @@
       "px": 73.196,
       "notional": 983.68,
       "trader": "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b"
+    },
+    {
+      "t": "2026-11-12T17:35:17+00:00",
+      "action": "BUY",
+      "coin": "HYPE",
+      "px": 70.8175,
+      "notional": 975.4,
+      "trader": "0xfe106cc52747165a65a51d1697132aff03bd9e08"
     }
   ],
   "realized_pnl": -24.68938400261556,
-  "updated": "2026-11-12T17:31:49+00:00",
+  "updated": "2026-11-12T17:35:17+00:00",
   "history": [
     {
       "t": "2026-10-18T17:04:23+00:00",
