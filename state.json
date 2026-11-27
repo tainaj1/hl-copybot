@@ -52,8 +52,7 @@
     "0x7b72d9d0d0b09130f260a5e1e0b06585ff4f0273": {},
     "0xd1720e80f9820a1e980e5f5f1b644cde257b6bf0": {},
     "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b": {
-      "HYPE": 1096.84,
-      "XMR": 11.29
+      "XMR": 14.516
     },
     "0xfe106cc52747165a65a51d1697132aff03bd9e08": {},
     "0x515755b2c5a209976cf0de869c30f45ac7495a60": {},
@@ -91,7 +90,7 @@
       "ZEC": 474.95
     }
   },
-  "cash": 4986.281698142413,
+  "cash": 5934.060055461473,
   "positions": {
     "0x37331441dd5aba9f15110d764218d4d4dc0c649a:HYPE": {
       "coin": "HYPE",
@@ -106,13 +105,6 @@
       "entry_px": 602.725,
       "notional": 999.9061332691074,
       "trader": "0x37331441dd5aba9f15110d764218d4d4dc0c649a"
-    },
-    "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b:HYPE": {
-      "coin": "HYPE",
-      "qty": 15.04625037416551,
-      "entry_px": 62.3785,
-      "notional": 938.5625289648833,
-      "trader": "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b"
     },
     "0x304b67d1ecde92cdbf931b707744f0087e0a322a:ZEC": {
       "coin": "ZEC",
@@ -424,10 +416,19 @@
       "px": 407.67,
       "notional": 936.53,
       "trader": "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b"
+    },
+    {
+      "t": "2026-11-27T17:45:19+00:00",
+      "action": "SELL",
+      "coin": "HYPE",
+      "px": 62.991,
+      "pnl": 9.22,
+      "trader": "0xbe3f79ae0ab3294aaa3230c1155e912c05b6a55b",
+      "why": "trader closed"
     }
   ],
-  "realized_pnl": -207.14420069044212,
-  "updated": "2026-11-27T17:40:19+00:00",
+  "realized_pnl": -197.9283723362658,
+  "updated": "2026-11-27T17:45:19+00:00",
   "history": [
     {
       "t": "2026-10-18T17:04:23+00:00",
